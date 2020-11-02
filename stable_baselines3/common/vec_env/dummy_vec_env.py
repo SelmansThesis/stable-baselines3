@@ -38,7 +38,7 @@ class DummyVecEnv(VecEnv):
     def step_async(self, actions: np.ndarray) -> None:
         self.actions = actions
 
-    def step_wait(self) -> VecEnvStepReturn:
+    def step_wait(self, **kwargs) -> VecEnvStepReturn:
         for env_idx in range(self.num_envs):
             obs, self.buf_rews[env_idx], self.buf_dones[env_idx], self.buf_infos[env_idx] = self.envs[env_idx].step(
                 self.actions[env_idx]
@@ -46,7 +46,7 @@ class DummyVecEnv(VecEnv):
             if self.buf_dones[env_idx]:
                 # save final observation where user can get it, then reset
                 self.buf_infos[env_idx]["terminal_observation"] = obs
-                obs = self.envs[env_idx].reset()
+                obs = self.envs[env_idx].reset( **kwargs)  # MSA: **kwargs arguments to insert to reset
             self._save_obs(env_idx, obs)
         return (self._obs_from_buf(), np.copy(self.buf_rews), np.copy(self.buf_dones), deepcopy(self.buf_infos))
 
@@ -56,9 +56,9 @@ class DummyVecEnv(VecEnv):
             seeds.append(env.seed(seed + idx))
         return seeds
 
-    def reset(self) -> VecEnvObs:
+    def reset(self, **kwargs) -> VecEnvObs:
         for env_idx in range(self.num_envs):
-            obs = self.envs[env_idx].reset()
+            obs = self.envs[env_idx].reset( **kwargs)
             self._save_obs(env_idx, obs)
         return self._obs_from_buf()
 

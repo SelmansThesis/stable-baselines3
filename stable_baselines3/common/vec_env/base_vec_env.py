@@ -139,7 +139,7 @@ class VecEnv(ABC):
         """
         raise NotImplementedError()
 
-    def step(self, actions: np.ndarray) -> VecEnvStepReturn:
+    def step(self, actions: np.ndarray, **kwargs) -> VecEnvStepReturn:
         """
         Step the environments with the given action
 
@@ -147,7 +147,7 @@ class VecEnv(ABC):
         :return: observation, reward, done, information
         """
         self.step_async(actions)
-        return self.step_wait()
+        return self.step_wait( **kwargs) # MSA: **kwargs arguments to insert to reset
 
     def get_images(self) -> Sequence[np.ndarray]:
         """
